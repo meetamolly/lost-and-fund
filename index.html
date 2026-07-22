@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A premium Lost & Found application to report lost assets, post found items, locate pickup coordinates, and coordinate safe handovers.">
+  <title>Lost & Found Locator | Secure Handover Network</title>
+  
+  <!-- Leaflet CSS for Map rendering -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Custom Premium Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header / Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="#" class="logo" id="logoLink">
+        <img src="image.jpg" alt="image Logo" class="logo-image">
+        <span>FE/23/76854659</span>
+      </a>
+      
+      <div class="nav-actions" id="navActions">
+        <!-- Guest Controls (Default) -->
+        <div id="guestControls" class="user-menu">
+          <button class="btn btn-secondary" id="btnSignIn">Sign In</button>
+          <button class="btn btn-primary" id="btnSignUp">Create Account</button>
+        </div>
+        
+        <!-- Authenticated Controls (Hidden by default) -->
+        <div id="authControls" class="user-menu" style="display: none;">
+          <button class="btn btn-secondary" id="btnMyPosts">My Posts</button>
+          <div class="dropdown-wrapper" style="position: relative;">
+            <button class="btn btn-primary" id="btnPostItem">Report Item</button>
+          </div>
+          <div class="user-badge">
+            <div class="user-avatar" id="avatarLetter">U</div>
+            <span id="navUsername">User</span>
+          </div>
+          <button class="btn btn-text btn-danger-outline" id="btnSignOut">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body Content -->
+  <main class="container">
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1>Reconnecting you back with your lost item</h1>
+      <p>MO-TECH is a secure, community-driven network designed to safely reunite people with lost valuables and index found discoveries.</p>
+      
+      <!-- Safe Meeting Notice (Crucial requirement: active and highly visible after user logs in) -->
+      <div class="warning-banner" id="safetyBanner" style="display: none;">
+        <svg class="warning-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <div class="warning-content">
+          <strong>Safety Alert:</strong> Only meet in a public place, open place, or police station to collect your lost item.
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters & Search Panel -->
+    <section class="controls-panel">
+      <div class="search-and-filters">
+        <div class="search-wrapper">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search by item name, description, tags...">
+        </div>
+        
+        <select id="categoryFilter" class="filter-select">
+          <option value="all">All Categories</option>
+          <option value="electronics">Electronics & Gadgets</option>
+          <option value="documents">IDs, Keys & Documents</option>
+          <option value="accessories">Jewelry & Accessories</option>
+          <option value="bags">Bags, Wallets & Purses</option>
+          <option value="clothing">Clothing & Apparel</option>
+          <option value="pets">Pets & Animals</option>
+          <option value="cars">Cars & Vehicles</option>
+          <option value="people">Lost Persons</option>
+          <option value="other">Other Items</option>
+        </select>
+      </div>
+
+      <div class="tab-group">
+        <button class="tab-btn active" id="tabAll" data-type="all">All Items</button>
+        <button class="tab-btn" id="tabLost" data-type="lost">Lost Items</button>
+        <button class="tab-btn" id="tabFound" data-type="found">Found Items</button>
+      </div>
+    </section>
+
+    <!-- Item Listing Grid -->
+    <section>
+      <div class="feed-header">
+        <h2 id="feedTitle">Latest Reports (2 Indexed)</h2>
+        <p id="itemCounter">2 items indexed</p>
+      </div>
+      
+      <div class="items-grid" id="itemsGrid">
+        <!-- Lost Item Card -->
+        <article class="card" onclick="openItemDetail({id: 'seed-1', title: 'Black Leather Wallet', type: 'lost', category: 'bags', date: '2026-05-18', description: 'Lost my premium leather wallet near Central Square. It contains my driver\'s license and some cards. There is a small metal engraving of a wolf on the bottom right corner.', contactAddress: '142 Baker St, London, UK', phone: '+44 20 7946 0912', email: 'sarah.jenkins@mail.com'})">
+          <div class="card-image-placeholder">
+            <span class="card-badge badge-lost">lost</span>
+            <span class="card-category">bags</span>
+            <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="2"/><path d="M16 6a4 4 0 0 0-8 0"/></svg>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Black Leather Wallet</h3>
+            <p class="card-description">Lost my premium leather wallet near Central Square. It contains my driver's license and some cards. There is a small metal engraving of a wolf on the bottom right corner.</p>
+            <div class="card-meta">
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>May 18, 2026</span>
+              </div>
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span class="contact-value">142 Baker St, London, UK</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Found Item Card -->
+        <article class="card" onclick="openItemDetail({id: 'seed-2', title: 'iPhone 15 Pro Max (Titanium)', type: 'found', category: 'electronics', date: '2026-05-17', description: 'Found an iPhone 15 Pro Max sitting on a bench in Hyde Park near the Serpentine. It has a blue silicon cover with a pattern of stars on the back. It is currently locked, but turning on shows a lockscreen of a golden retriever.', contactAddress: 'Hyde Park Police Station, London', phone: '+44 20 7946 0524', email: 'officer.davis@metpolice.gov.uk', lat: 51.5072, lng: -0.1657})">
+          <div class="card-image-placeholder">
+            <span class="card-badge badge-found">found</span>
+            <span class="card-category">electronics</span>
+            <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">iPhone 15 Pro Max (Titanium)</h3>
+            <p class="card-description">Found an iPhone 15 Pro Max sitting on a bench in Hyde Park near the Serpentine. It has a blue silicon cover with a pattern of stars on the back. It is currently locked, but turning on shows a lockscreen of a golden retriever.</p>
+            <div class="card-meta">
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>May 17, 2026</span>
+              </div>
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span class="contact-value">Hyde Park Police Station, London</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- Authentication Modal (Sign In / Register) -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-content modal-auth">
+      <div class="modal-header">
+        <h3 id="authModalTitle">Sign In</h3>
+        <button class="modal-close" id="closeAuthModal">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="authForm">
+          <div class="form-group" id="usernameGroup" style="display: none;">
+            <label class="form-label" for="authUsername">Full Name</label>
+            <input type="text" id="authUsername" class="form-input" placeholder="e.g. John Doe">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="authEmail">Email Address</label>
+            <input type="email" id="authEmail" class="form-input" placeholder="name@domain.com" required>
+          </div>
+          <div class="form-group" id="passwordGroup">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <label class="form-label" for="authPassword" style="margin-bottom: 0;">Password</label>
+              <a href="#" id="forgotPasswordLink" style="font-size: 0.8rem; color: hsl(var(--primary)); font-weight: 500;">Forgot Password?</a>
+            </div>
+            <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="btnAuthSubmit">Sign In</button>
+        </form>
+        <div class="auth-switch">
+          <span id="authSwitchText">New to MO-TECH?</span>
+          <span class="auth-switch-link" id="authSwitchLink">Create an account</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Posting Modal (Lost / Found Creation Panel) -->
+  <div class="modal-overlay" id="postModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="postModalTitle">Report an Item</h3>
+        <button class="modal-close" id="closePostModal">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Inline Warning inside post form (Mandatory Notice) -->
+        <div class="warning-banner" style="margin-bottom: 1.5rem;">
+          <svg class="warning-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <div class="warning-content" style="font-size: 0.85rem;">
+            <strong>Reminder:</strong> Only meet in a public place, open place, or police station to collect your lost item.
+          </div>
+        </div>
+
+        <form id="postForm">
+          <div class="form-group">
+            <label class="form-label">Report Type</label>
+            <div class="tab-group" style="align-self: stretch; width: 100%; display: grid; grid-template-columns: 1fr 1fr;">
+              <button type="button" class="tab-btn active" id="postTypeLost" style="text-align: center;">Lost Item</button>
+              <button type="button" class="tab-btn" id="postTypeFound" style="text-align: center;">Found Item</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="postTitle">Item Name</label>
+            <input type="text" id="postTitle" class="form-input" placeholder="e.g. Leather Wallet, iPhone 14 Pro" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="postCategory">Category</label>
+              <select id="postCategory" class="form-input" required style="appearance: auto;">
+                <option value="electronics">Electronics & Gadgets</option>
+                <option value="documents">IDs, Keys & Documents</option>
+                <option value="accessories">Jewelry & Accessories</option>
+                <option value="bags">Bags, Wallets & Purses</option>
+                <option value="clothing">Clothing & Apparel</option>
+                <option value="pets">Pets & Animals</option>
+                <option value="cars">Cars & Vehicles</option>
+                <option value="people">Lost Persons</option>
+                <option value="other">Other Items</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="postDate">Date Encountered</label>
+              <input type="date" id="postDate" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="postDescription">Item Description & Attributes</label>
+            <textarea id="postDescription" class="form-input" placeholder="Describe unique identifying markers, colors, condition..." required></textarea>
+          </div>
+
+          <!-- Contact Details (Required for Lost Poster, helpful for Found Poster) -->
+          <div class="contact-header" style="margin: 1.5rem 0 1rem;">Poster Contact Details</div>
+          
+          <div class="form-group">
+            <label class="form-label" for="postContactAddress">Contact Address / Pickup Base Address</label>
+            <input type="text" id="postContactAddress" class="form-input" placeholder="e.g. 123 Safe Street, District 4" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="postPhone">Phone Number</label>
+              <input type="tel" id="postPhone" class="form-input" placeholder="+1 (555) 019-2834" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="postEmail">Email Address</label>
+              <input type="email" id="postEmail" class="form-input" placeholder="contact@example.com" required>
+            </div>
+          </div>
+
+          <!-- Image Upload Section -->
+          <div class="contact-header" style="margin: 1.5rem 0 1rem;">Item Picture</div>
+          <div class="form-group">
+            <label class="form-label" for="postImage">Upload Photograph</label>
+            <input type="file" id="postImage" class="form-input" accept="image/*" style="padding: 0.5rem 1rem;">
+            <div class="form-helper">Uploading a picture helps others verify and reclaim the item quickly.</div>
+            
+            <!-- Upload Preview Container -->
+            <div id="postImagePreviewContainer" style="display: none; margin-top: 1rem; border-radius: var(--radius-md); overflow: hidden; border: 1px solid hsl(var(--border-light)); max-height: 150px; position: relative;">
+              <img id="postImagePreview" src="" alt="Upload Preview" style="width: 100%; height: 150px; object-fit: cover;">
+              <button type="button" id="btnRemoveImage" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.7); color: white; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(2px);">Remove</button>
+            </div>
+          </div>
+
+          <!-- Found Map Picker (Only visible when creating a 'Found' post) -->
+          <div id="foundMapSection" style="display: none; margin-top: 1.5rem;">
+            <div class="contact-header" style="margin-bottom: 0.5rem;">Pickup Location Marker</div>
+            <div class="map-placement-tip">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Click on the map below to pinpoint the exact item pickup/found location.</span>
+            </div>
+            <div class="map-container-wrapper">
+              <div id="creationMap" class="map-container"></div>
+            </div>
+            <input type="hidden" id="postLat" value="">
+            <input type="hidden" id="postLng" value="">
+          </div>
+
+          <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 2rem;">Submit Report</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item Detail Overlay Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 id="detailItemType" style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.1em; color: hsl(var(--primary));">Item Details</h3>
+        <button class="modal-close" id="closeDetailModal">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Safety Alert (Always persistent in details view for items) -->
+        <div class="warning-banner" style="margin-bottom: 1.5rem;">
+          <svg class="warning-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <div class="warning-content">
+            <strong>Meeting Safety Rules:</strong> Only meet in a public place, open place, or police station to collect your lost item.
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <!-- Main Details -->
+          <div class="detail-main">
+            <div class="detail-title-section">
+              <h2 id="detailTitle">Item Name</h2>
+            </div>
+            
+            <!-- Dynamic Item Image -->
+            <div id="detailImageContainer" style="display: none; margin: 1rem 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid hsl(var(--border-light)); max-height: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+              <img id="detailImage" src="" alt="Item Image" style="width: 100%; height: 350px; object-fit: cover;">
+            </div>
+
+            <p class="detail-desc" id="detailDescription">Item full description goes here...</p>
+            
+            <div class="card-meta" style="border-top: none; padding-top: 0; font-size: 0.95rem;">
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <span><strong>Date:</strong> <span id="detailDate">2026-05-19</span></span>
+              </div>
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span><strong>Reported Region:</strong> <span id="detailLocation">Main City Center</span></span>
+              </div>
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                  <line x1="7" y1="7" x2="7.01" y2="7"/>
+                </svg>
+                <span><strong>Category:</strong> <span id="detailCategory" style="text-transform: capitalize;">Electronics</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar Contacts & Map -->
+          <div class="detail-sidebar">
+            <div class="contact-card">
+              <div class="contact-header">Reclaim / Contact Info</div>
+              <div class="contact-item">
+                <span class="contact-label">Contact Address</span>
+                <span class="contact-value" id="detailContactAddress">Address of poster</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Phone Number</span>
+                <span class="contact-value" id="detailPhone">+1 (555) 0123-456</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Email Address</span>
+                <span class="contact-value" id="detailEmail">email@domain.com</span>
+              </div>
+            </div>
+
+            <!-- Detail display map (Only for Found items) -->
+            <div class="detail-map-section" id="detailMapSection" style="display: none;">
+              <h4>Pickup Map Coordinates</h4>
+              <div class="map-container-wrapper">
+                <div id="detailMap" class="map-container"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Overlay -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Leaflet Javascript for mapping -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Application Interactivity Script -->
+  <script src="app.js"></script>
+</body>
+</html>
